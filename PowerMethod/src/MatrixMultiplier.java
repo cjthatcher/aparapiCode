@@ -2,9 +2,9 @@ import com.amd.aparapi.Range;
 
 
 public class MatrixMultiplier {
-	private final Matrix m1;
-	private final Matrix m2;
-	private final Range range;
+	private Matrix m1;
+	private Matrix m2;
+	private Range range;
 	private float[] linearResult;
 	
 	private MatrixMultiplierKernel k;
@@ -20,6 +20,23 @@ public class MatrixMultiplier {
 		range = Range.create2D(m1.getRows(), m2.getColumns());
 		
 		k = new MatrixMultiplierKernel(getLinearData(m1.getValues()), getLinearData(m2.getValues()), linearResult, innerCount, outerCount);
+	}
+	
+	public void resetValues(Matrix m1, Matrix m2)
+	{
+		this.m1 = m1;
+		this.m2 = m2;
+		int innerCount = m1.getColumns();
+		int outerCount = m2.getColumns();
+		
+		this.linearResult = new float[m1.getRows() * m2.getColumns()];
+		range = Range.create2D(m1.getRows(),  m2.getColumns());
+		
+		k.setM1LinearData(getLinearData(m1.getValues()));
+		k.setM2LinearData(getLinearData(m2.getValues()));
+		k.setFinalLinearData(linearResult);
+		k.setInnerColumnCount(innerCount);
+		k.setOuterColumnCount(outerCount);
 	}
 	
 	private float[] getLinearData(float[][] data)
